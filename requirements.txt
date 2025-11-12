@@ -1,0 +1,11 @@
+# For the Flask API and server
+flask
+gunicorn
+
+# For MongoDB connection
+pymongo[srv]
+
+langchain
+langchain_community
+langchain-google-genai
+sentence-transformers
