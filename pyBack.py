@@ -1,7 +1,6 @@
 import os
 import time
 from flask import Flask, request, jsonify
-from google.colab import userdata  # For securely accessing Colab secrets
 from pymongo import MongoClient
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
