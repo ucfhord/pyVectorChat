@@ -139,7 +139,21 @@ Future missions aim to explore the possibility of human colonization.
 #print(f"✅ Successfully inserted {len(documents_to_insert)} documents into MongoDB Atlas.")
 
 # ------------------------------------------------------------------
-
+def get_or_create_session_state(session_id: str):
+    """
+    Fetches the session state from MongoDB, or creates a new one.
+    """
+    state = conv_collection.find_one({"session_id": session_id})
+    if not state:
+        state = {
+            "session_id": session_id, "last_updated": time.time(),
+            "token_counts": {"total_prompt_tokens": 0, "total_completion_tokens": 0, "total_tokens": 0},
+            "history": [] # Stored as serialized dicts
+        }
+    
+    # Convert dict history back into LangChain Message objects
+    message_objects = [loads(msg) for msg in state["history"]]
+    return state, message_objects
 # Step 6: Query the Vector DB and Perform RAG
 def ask_question_with_rag(question: str):
     """
@@ -149,6 +163,7 @@ def ask_question_with_rag(question: str):
     3. Constructs a prompt with the retrieved context.
     4. Calls the LLM to generate an answer.
     """
+
     # 1. Embed the user's question
     query_embedding = embedding_model.embed_query(question)
 
@@ -218,10 +233,12 @@ def ask_conversational_rag(question: str, session_id: str):
     A conversational RAG function that uses session memory.
     """
     # 1. Get or create memory for the session
-    if session_id not in session_memories:
-        session_memories[session_id] = ConversationBufferWindowMemory(k=3, return_messages=True, memory_key="history")
-    memory = session_memories[session_id]
-
+    #if session_id not in session_memories:
+    #    session_memories[session_id] = ConversationBufferWindowMemory(k=3, return_messages=True, memory_key="history")
+    #memory = session_memories[session_id]
+    state, chat_history_messages = get_or_create_session_state(session_id)
+    token_counts = state["token_counts"]
+    windowed_history = chat_history_messages[-6:]
     # --- The RAG part is the same as before ---
     query_embedding = embedding_model.embed_query(question)
     vector_search_pipeline = [
@@ -233,7 +250,7 @@ def ask_conversational_rag(question: str, session_id: str):
     sources = list(set([doc['source'] for doc in results]))
 
     # 2. Load chat history
-    chat_history = memory.load_memory_variables({})['history']
+    #chat_history = memory.load_memory_variables({})['history']
 
     # 3. Create a prompt that includes history
     prompt_template = ChatPromptTemplate.from_messages([
@@ -247,11 +264,11 @@ def ask_conversational_rag(question: str, session_id: str):
     chain = prompt_template | llm
 
     # 5. Invoke the chain
-    response = chain.invoke({"input": question, "history": chat_history})
+    response = chain.invoke({"input": question, "history": windowed_history})
     answer = response.content
 
     # 6. Save the new turn to memory
-    memory.save_context({"input": question}, {"output": answer})
+    #memory.save_context({"input": question}, {"output": answer})
 
     return answer, sources
 # --- App Initialization ---
