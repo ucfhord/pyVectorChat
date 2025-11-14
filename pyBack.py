@@ -215,12 +215,12 @@ def ask_question_with_rag(question: str):
 
 # --- Let's ask a question! ---
 #question = "What is Olympus Mons?"
-question = "How does Mars compares to the Moon?"
-answer, sources = ask_question_with_rag(question)
+#question = "How does Mars compares to the Moon?"
+#answer, sources = ask_question_with_rag(question)
 
-print(f"❓ Question: {question}")
-print(f"✅ Answer: {answer}")
-print(f"📚 Sources: {sources}")
+#print(f"❓ Question: {question}")
+#print(f"✅ Answer: {answer}")
+#print(f"📚 Sources: {sources}")
 
 # ------------------------------------------------------------------
 
@@ -229,6 +229,7 @@ print(f"📚 Sources: {sources}")
 session_memories = {}
 
 def ask_conversational_rag(question: str, session_id: str):
+    print("ask_conversational_rag entry")
     """
     A conversational RAG function that uses session memory.
     """
@@ -262,11 +263,11 @@ def ask_conversational_rag(question: str, session_id: str):
 
     # 4. Create a simple chain
     chain = prompt_template | llm
-
+    print("chain", chain)
     # 5. Invoke the chain
     response = chain.invoke({"input": question, "history": windowed_history})
     answer = response.content
-
+    print("answer: ", answer)
     # 6. Save the new turn to memory
     #memory.save_context({"input": question}, {"output": answer})
 
@@ -280,7 +281,7 @@ def chat():
         data = request.json
         session_id = data.get('session_id')
         question = data.get('question')
-
+        print("session id: ", session_id, " question: ", question)
         if not session_id or not question:
             return jsonify({"error": "Missing 'session_id' or 'question'"}), 400
 
