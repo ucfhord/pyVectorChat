@@ -29,6 +29,7 @@ try:
     mongo_client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
     db = mongo_client.chatbot
     collection = db.documents
+    conv_collection = db.conversations
     # Test connection
     mongo_client.server_info()
     print(f"✅ Connected to MongoDB Atlas! Collection: {collection.name}")
