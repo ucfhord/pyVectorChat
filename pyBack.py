@@ -3,7 +3,7 @@ import time
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 #from langchain_community.embeddings import SentenceTransformerEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 #from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
