@@ -8,5 +8,6 @@ pymongo[srv]
 langchain
 langchain_community
 langchain-google-genai
-sentence-transformers
+#sentence-transformers
 langchain-text-splitters
+langchain_huggingface
