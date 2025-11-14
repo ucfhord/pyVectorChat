@@ -18,7 +18,6 @@ print("✅ Libraries imported!")
 # --- Load Secrets from Colab Secrets Manager (🔑 icon) ---
 MONGO_URI = 'mongodb+srv://youcefhord_db_user:bKo3Q1IlAFPUJzXG@chatbot.tcihuxs.mongodb.net/?appName=chatbot'
 GEMINI_API_KEY = 'AIzaSyDwbIYwUL0D6-5Vx5IFfTk-4AZbr8XI0IE'
-GEMINI_API_KEY = 'AIzaSyAxuorLah7bhNpyTK4k934VNt5bWNNsqDg'
 # Check if secrets are loaded
 #if not MONGO_URI or not GEMINI_API_KEY:
  #   raise ValueError("Please configure MONGO_URI and GEMINI_API_KEY in Colab Secrets (click the 🔑 icon).")
