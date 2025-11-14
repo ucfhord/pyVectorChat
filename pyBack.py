@@ -2,7 +2,7 @@ import os
 import time
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
-from langchain_community.embeddings import SentenceTransformerEmbeddings
+#from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 #from langchain.memory import ConversationBufferWindowMemory
@@ -39,7 +39,8 @@ except Exception as e:
     raise
 
 # --- LangChain Models ---
-embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+#embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+embedding_model = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GEMINI_API_KEY)
 llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", google_api_key=GEMINI_API_KEY, temperature=0.3) # Changed model to gemini-1.5-flash-latest
 print("✅ Initialized embedding model and LLM.")
 
