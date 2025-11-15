@@ -18,7 +18,8 @@ print("✅ Libraries imported!")
 # Step 3: Load Secrets and Initialize Connections
 # --- Load Secrets from Colab Secrets Manager (🔑 icon) ---
 MONGO_URI = 'mongodb+srv://youcefhord_db_user:bKo3Q1IlAFPUJzXG@chatbot.tcihuxs.mongodb.net/?appName=chatbot'
-GEMINI_API_KEY = 'AIzaSyDwbIYwUL0D6-5Vx5IFfTk-4AZbr8XI0IE'
+#GEMINI_API_KEY = 'AIzaSyDwbIYwUL0D6-5Vx5IFfTk-4AZbr8XI0IE'
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 #HUGGINGFACE_API_KEY = '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'
 HUGGINGFACE_API_KEY = os.environ["HUGGINGFACE_API_KEY"]
 print("hf ", HUGGINGFACE_API_KEY)
