@@ -286,7 +286,7 @@ app = Flask(__name__)
 def chat():
     try:
         data = request.json
-        session_id = data.get('session_id')
+        session_id = data.get('user_id')
         question = data.get('question')
         print("session id: ", session_id, " question: ", question)
         if not session_id or not question:
