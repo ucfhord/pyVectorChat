@@ -319,7 +319,7 @@ def ask_conversational_rag(question: str, session_id: str):
 
 
 
-    return answer, sources, "turn_input_tokens": prompt_tokens, "turn_output_tokens": completion_tokens, "session_token_total": current_monthly_total
+    return "answer":answer, "sources":sources, "turn_input_tokens":prompt_tokens, "turn_output_tokens":completion_tokens, "session_token_total":current_monthly_total
 # --- App Initialization ---
 app = Flask(__name__)
 # --- API Endpoint ---
