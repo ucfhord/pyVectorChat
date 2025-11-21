@@ -9,9 +9,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 #from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from pymongo.server_api import ServerApi
-
-
-print("✅ Libraries imported!")
+from langchain_core.messages import HumanMessage, AIMessage
 
 # ------------------------------------------------------------------
 
@@ -22,7 +20,7 @@ MONGO_URI = 'mongodb+srv://youcefhord_db_user:bKo3Q1IlAFPUJzXG@chatbot.tcihuxs.m
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 #HUGGINGFACE_API_KEY = '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'
 HUGGINGFACE_API_KEY = os.environ["HUGGINGFACE_API_KEY"]
-print("hf ", HUGGINGFACE_API_KEY)
+
 # Check if secrets are loaded
 #if not MONGO_URI or not GEMINI_API_KEY:
  #   raise ValueError("Please configure MONGO_URI and GEMINI_API_KEY in Colab Secrets (click the 🔑 icon).")
@@ -157,7 +155,21 @@ def get_or_create_session_state(session_id: str):
             "token_counts": {"total_prompt_tokens": 0, "total_completion_tokens": 0, "total_tokens": 0},
             "history": [] # Stored as serialized dicts
         }
-    
+
+   # Insert ot update the session for conversation
+    conv_collection.update_one(
+     {"session_id": session_id},
+     {
+        "$set": {
+            "last_updated": time.time(),
+            "history": state["history"] 
+        },
+        "$inc": inc_fields # Increments tokens
+     },
+     # The 'upsert=True' is here, guaranteeing the document is created
+     # if this is the user's very first message.
+     upsert=True 
+   )
     # Convert dict history back into LangChain Message objects
     message_objects = [loads(msg) for msg in state["history"]]
     return state, message_objects
@@ -274,11 +286,52 @@ def ask_conversational_rag(question: str, session_id: str):
     # 5. Invoke the chain
     response = chain.invoke({"input": question, "history": windowed_history})
     answer = response.content
-    print("answer: ", answer)
+
+    # getting token usage from ai response object
+    usage = response.response_metadata.get("usage_metadata", {})
+    
+    prompt_tokens = usage.get("prompt_token_count", 0)
+    completion_tokens = usage.get("candidates_token_count", 0)
+    total_tokens = usage.get("total_token_count", 0)    
+
+    current_month_key = datetime.datetime.now().strftime("%Y-%m")
+
+    inc_fields = {
+        f"monthly_token_counts.{current_month_key}.total_prompt_tokens": prompt_tokens,
+        f"monthly_token_counts.{current_month_key}.total_completion_tokens": completion_tokens,
+        f"monthly_token_counts.{current_month_key}.total_tokens": total_tokens,
+    }
+
+    history_list = state["history"]
+    
+    history_list.append(dumps(HumanMessage(content=question)))
+    history_list.append(dumps(AIMessage(content=answer)))
+
+    # fields definition to update
+    set_fields = {
+        "last_updated": time.time(),
+        "history": history_list,
+        "current_month_key": current_month_key # Making sure field of our reference is up to date
+    }
+
+    # updatinf session (with upsert flag)
+    conv_collection.update_one(
+        {"session_id": session_id},
+        {"$set": set_fields, "$inc": inc_fields},
+        upsert=True # Crée le document s'il n'existe pas
+    )
+
+    # get the total token count of the month
+    updated_doc = conv_collection.find_one({"session_id": session_id})
+    current_monthly_total = updated_doc.get('monthly_token_counts', {}).get(current_month_key, {}).get('total_tokens', total_tokens)
+
+    # print("answer: ", answer)
     # 6. Save the new turn to memory
     #memory.save_context({"input": question}, {"output": answer})
 
-    return answer, sources
+
+
+    return answer, sources, "turn_input_tokens": prompt_tokens, "turn_output_tokens": completion_tokens, "session_token_total": current_monthly_total
 # --- App Initialization ---
 app = Flask(__name__)
 # --- API Endpoint ---
