@@ -248,7 +248,7 @@ def ask_conversational_rag(question: str, session_id: str):
     #    session_memories[session_id] = ConversationBufferWindowMemory(k=3, return_messages=True, memory_key="history")
     #memory = session_memories[session_id]
     state, chat_history_messages = get_or_create_session_state(session_id)
-    token_counts = state["token_counts"]
+    token_counts = state["monthly_token_counts"]
     windowed_history = chat_history_messages[-6:]
     # --- The RAG part is the same as before ---
     query_embedding = embedding_model.embed_query(question)
