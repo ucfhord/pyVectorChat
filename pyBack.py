@@ -151,25 +151,13 @@ def get_or_create_session_state(session_id: str):
     state = conv_collection.find_one({"session_id": session_id})
     if not state:
         state = {
-            "session_id": session_id, "last_updated": time.time(),
-            "token_counts": {"total_prompt_tokens": 0, "total_completion_tokens": 0, "total_tokens": 0},
-            "history": [] # Stored as serialized dicts
+            "session_id": session_id, 
+            "last_updated": time.time(),
+            "current_month_key": datetime.datetime.now().strftime("%Y-%m"),
+            "monthly_token_counts": {}, 
+            "history": [] 
         }
 
-   # Insert ot update the session for conversation
-    conv_collection.update_one(
-     {"session_id": session_id},
-     {
-        "$set": {
-            "last_updated": time.time(),
-            "history": state["history"] 
-        },
-        "$inc": inc_fields # Increments tokens
-     },
-     # The 'upsert=True' is here, guaranteeing the document is created
-     # if this is the user's very first message.
-     upsert=True 
-   )
     # Convert dict history back into LangChain Message objects
     message_objects = [loads(msg) for msg in state["history"]]
     return state, message_objects
@@ -314,7 +302,7 @@ def ask_conversational_rag(question: str, session_id: str):
         "current_month_key": current_month_key # Making sure field of our reference is up to date
     }
 
-    # updatinf session (with upsert flag)
+    # updating session (with upsert flag)
     conv_collection.update_one(
         {"session_id": session_id},
         {"$set": set_fields, "$inc": inc_fields},
