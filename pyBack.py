@@ -11,6 +11,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from pymongo.server_api import ServerApi
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain.load.dump import dumps # Pour sérialiser l'historique
+from langchain.load.load import loads  # Pour désérialiser l'historique
 
 # ------------------------------------------------------------------
 
