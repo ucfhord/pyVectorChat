@@ -284,7 +284,7 @@ def ask_conversational_rag(question: str, session_id: str):
     prompt_tokens = usage.get("prompt_token_count", 0)
     completion_tokens = usage.get("candidates_token_count", 0)
     total_tokens = usage.get("total_token_count", 0)    
-
+    print(f"usage metrics: {(prompt_tokens, completion_tokens, total_tokens)}")
     current_month_key = datetime.datetime.now().strftime("%Y-%m")
 
     inc_fields = {
